@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Checkup Storage</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #3c4043;
+            --heading-color: #1a73e8;
+            --section-bg: #f8f9fa;
+            --border-color: #dadce0;
+            --input-bg: #ffffff;
+            --table-header-bg: #f8f9fa;
+            --table-row-even: #fbfbfb;
+            --table-row-hover: #f1f3f4;
+            --section-border: #1a73e8;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --heading-color: #8ab4f8;
+            --section-bg: #2d2d2d;
+            --border-color: #444444;
+            --input-bg: #333333;
+            --table-header-bg: #333333;
+            --table-row-even: #252525;
+            --table-row-hover: #3d3d3d;
+            --section-border: #8ab4f8;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 1200px; margin: auto; background: var(--container-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        h1 { color: var(--heading-color); margin: 0; }
+        
+        #themeToggle { background: var(--section-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        
+        h2 { border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-top: 30px; color: var(--text-color); }
+        
+        form { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .section { grid-column: 1 / -1; background: var(--section-bg); padding: 20px; border-radius: 8px; border-left: 5px solid var(--section-border); margin-top: 10px; transition: background-color 0.3s; }
+        .section-title { font-weight: bold; margin-bottom: 15px; color: var(--heading-color); display: block; width: 100%; }
+        
+        .field { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-size: 0.9rem; color: var(--text-color); opacity: 0.8; }
+        input, select { padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 1rem; background-color: var(--input-bg); color: var(--text-color); }
+        input:focus { outline: none; border-color: var(--heading-color); box-shadow: 0 0 0 2px rgba(26,115,232,0.2); }
+        
+        .button-container { grid-column: 1 / -1; text-align: center; margin-top: 30px; }
+        button[type="submit"] { background-color: #1a73e8; color: white; border: none; padding: 12px 30px; border-radius: 4px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s; }
+        button[type="submit"]:hover { background-color: #1557b0; }
+
+        .table-container { overflow-x: auto; margin-top: 40px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background-color: var(--container-bg); }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; white-space: nowrap; }
+        th { background-color: var(--table-header-bg); color: var(--text-color); position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: var(--table-row-even); }
+        tr:hover { background-color: var(--table-row-hover); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <h1>🩸 Medical Checkup Storage</h1>
+            <button id="themeToggle">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">Dark Mode</span>
+            </button>
+        </div>
+        
+        <form id="checkupForm">
+            <!-- Personal Info -->
+            <div class="section">
+                <span class="section-title">Personal Information</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="field">
+                        <label for="year">Year</label>
+                        <input type="number" id="year" placeholder="2024" required>
+                    </div>
+                    <div class="field">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" required>
+                    </div>
+                    <div class="field">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" required>
+                    </div>
+                    <div class="field">
+                        <label for="gender">Gender</label>
+                        <select id="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" step="0.1" id="weight">
+                    </div>
+                    <div class="field">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" step="0.1" id="height">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blood Chemistry -->
+            <div class="section">
+                <span class="section-title">Blood Chemistry & Kidney Function</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+                    <div class="field"><label>Sugar (FPG)</label><input type="number" step="0.1" id="sugar"></div>
+                    <div class="field"><label>BUN</label><input type="number" step="0.1" id="bun"></div>
+                    <div class="field"><label>Creatinine</label><input type="number" step="0.01" id="creatinine"></div>
+                    <div class="field"><label>eGFR</label><input type="number" step="0.01" id="egrf"></div>
+                    <div class="field"><label>Uric Acid</label><input type="number" step="0.1" id="uric_acid"></div>
+                </div>
+            </div>
+
+            <!-- Lipid Profile -->
+            <div class="section">
+                <span class="section-title">Lipid Profile</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+                    <div class="field"><label>Cholesterol</label><input type="number" step="0.1" id="cholesterol"></div>
+                    <div class="field"><label>Triglycerides</label><input type="number" step="0.1" id="triglycerides"></div>
+                    <div class="field"><label>HDL-C</label><input type="number" step="0.1" id="hdl_c"></div>
+                    <div class="field"><label>LDL-C</label><input type="number" step="0.1" id="ldl_c"></div>
+                </div>
+            </div>
+
+            <!-- Liver Function -->
+            <div class="section">
+                <span class="section-title">Liver Function & Proteins</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+                    <div class="field"><label>Total Protein</label><input type="number" step="0.1" id="total_protein"></div>
+                    <div class="field"><label>Albumin</label><input type="number" step="0.1" id="albumin"></div>
+                    <div class="field"><label>Alk Phos</label><input type="number" step="0.1" id="alk_phos"></div>
+                    <div class="field"><label>SGOT (AST)</label><input type="number" step="0.1" id="sgot"></div>
+                    <div class="field"><label>SGPT (ALT)</label><input type="number" step="0.1" id="sgpt"></div>
+                    <div class="field"><label>HBs Ag</label><input type="text" id="hbs_ag" placeholder="Negative/Positive"></div>
+                </div>
+            </div>
+
+            <!-- Hematology -->
+            <div class="section">
+                <span class="section-title">Hematology (CBC)</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
+                    <div class="field"><label>WBC</label><input type="number" step="0.01" id="wbc"></div>
+                    <div class="field"><label>RBC</label><input type="number" step="0.01" id="rbc_m"></div>
+                    <div class="field"><label>Hemoglobin (HGB)</label><input type="number" step="0.1" id="hgb_m"></div>
+                    <div class="field"><label>Hematocrit (HCT)</label><input type="number" step="0.1" id="hct_m"></div>
+                    <div class="field"><label>Platelets</label><input type="number" step="1" id="platelets"></div>
+                    <div class="field"><label>NEU %</label><input type="number" step="0.1" id="neu"></div>
+                    <div class="field"><label>LYMP %</label><input type="number" step="0.1" id="lymp"></div>
+                    <div class="field"><label>MONO %</label><input type="number" step="0.1" id="mono"></div>
+                    <div class="field"><label>EOS %</label><input type="number" step="0.1" id="eos"></div>
+                    <div class="field"><label>BASO %</label><input type="number" step="0.1" id="baso"></div>
+                </div>
+            </div>
+
+            <!-- Urine & Others -->
+            <div class="section">
+                <span class="section-title">Urine Examination & Imaging</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="field"><label>Specific Gravity</label><input type="number" step="0.001" id="specific_gravity"></div>
+                    <div class="field"><label>pH</label><input type="number" step="0.1" id="ph"></div>
+                    <div class="field"><label>Urine Exam</label><input type="text" id="urine_exam" placeholder="Normal/Abnormal"></div>
+                    <div class="field"><label>Chest X-Ray</label><input type="text" id="chest_x_ray" placeholder="Normal/Abnormal"></div>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button type="submit">Save Medical Checkup</button>
+            </div>
+        </form>
+
+        <h2>📊 Historical Records</h2>
+        <div class="table-container">
+            <table id="checkupTable">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>W/H</th>
+                        <th>Sugar</th>
+                        <th>BUN/Cr/eGFR</th>
+                        <th>Chol/TG/HDL/LDL</th>
+                        <th>Uric</th>
+                        <th>Liver (AST/ALT/ALP)</th>
+                        <th>HBsAg</th>
+                        <th>WBC/RBC/HGB/HCT</th>
+                        <th>Platelets</th>
+                        <th>Diff (N/L/M/E/B)</th>
+                        <th>Urine SpGr/pH</th>
+                        <th>Urine Exam</th>
+                        <th>Chest X-Ray</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('checkupForm');
+        const tableBody = document.querySelector('#checkupTable tbody');
+
+        async function deleteCheckup(id) {
+            if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/checkups/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        fetchCheckups();
+                    } else {
+                        const errData = await response.json();
+                        alert('Error deleting record: ' + (errData.error || 'Unknown error'));
+                    }
+                } catch (err) {
+                    console.error('Error deleting record:', err);
+                    alert('Connection error');
+                }
+            }
+        }
+
+        async function fetchCheckups() {
+            try {
+                const response = await fetch('/api/checkups');
+                const data = await response.json();
+                tableBody.innerHTML = '';
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.year}</td>
+                        <td>${row.first_name} ${row.last_name}</td>
+                        <td>${row.gender}</td>
+                        <td>${row.weight}/${row.height}</td>
+                        <td>${row.sugar || '-'}</td>
+                        <td>${row.bun || '-'}/${row.creatinine || '-'}/${row.egrf || '-'}</td>
+                        <td>${row.cholesterol || '-'}/${row.triglycerides || '-'}/${row.hdl_c || '-'}/${row.ldl_c || '-'}</td>
+                        <td>${row.uric_acid || '-'}</td>
+                        <td>${row.sgot || '-'}/${row.sgpt || '-'}/${row.alk_phos || '-'}</td>
+                        <td>${row.hbs_ag || '-'}</td>
+                        <td>${row.wbc || '-'}/${row.rbc_m || '-'}/${row.hgb_m || '-'}/${row.hct_m || '-'}</td>
+                        <td>${row.platelets || '-'}</td>
+                        <td>${row.neu || '-'}/${row.lymp || '-'}/${row.mono || '-'}/${row.eos || '-'}/${row.baso || '-'}</td>
+                        <td>${row.specific_gravity || '-'}/${row.ph || '-'}</td>
+                        <td>${row.urine_exam || '-'}</td>
+                        <td>${row.chest_x_ray || '-'}</td>
+                        <td>
+                            <button onclick="deleteCheckup(${row.id})" style="background-color: #dc3545; padding: 5px 10px; font-size: 0.75rem;">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Error fetching data:', err);
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fields = [
+                'year', 'first_name', 'last_name', 'gender', 'weight', 'height',
+                'sugar', 'bun', 'creatinine', 'egrf', 'cholesterol', 'triglycerides',
+                'uric_acid', 'total_protein', 'albumin', 'hdl_c', 'ldl_c', 'alk_phos',
+                'sgot', 'sgpt', 'hbs_ag', 'wbc', 'rbc_m', 'hgb_m', 'hct_m', 'platelets',
+                'neu', 'lymp', 'mono', 'eos', 'baso', 'specific_gravity', 'ph',
+                'urine_exam', 'chest_x_ray'
+            ];
+
+            const formData = {};
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    let value = element.value;
+                    if (element.type === 'number' && value !== '') {
+                        value = parseFloat(value);
+                    }
+                    formData[field] = value === '' ? null : value;
+                }
+            });
+
+            try {
+                const response = await fetch('/api/checkups', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Data saved successfully!');
+                    form.reset();
+                    fetchCheckups();
+                } else {
+                    const errData = await response.json();
+                    alert('Error saving data: ' + (errData.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Error submitting form:', err);
+                alert('Connection error');
+            }
+        });
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const html = document.documentElement;
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        fetchCheckups();
+    </script>
+</body>
+</html>
