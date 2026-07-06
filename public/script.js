@@ -183,122 +183,141 @@ async function deleteCheckup(id) {
     }
 }
 
+let allCheckups = [];
+
 async function fetchCheckups() {
     try {
         const response = await fetch('/api/checkups');
         const data = await response.json();
-        
-        // Reset containers
-        tableHeader.innerHTML = '';
-        tableBody.innerHTML = '';
-        mobileCards.innerHTML = '';
-
-        if (data.length === 0) {
-            tableHeader.innerHTML = '<tr><th>No records found</th></tr>';
-            tableBody.innerHTML = '<tr><td>Please add a checkup record using the form above.</td></tr>';
-            return;
-        }
-
-        // 1. Build Transposed Table Header
-        let headerHtml = '<tr><th>Metric / Parameter</th>';
-        data.forEach(row => {
-            headerHtml += `<th>${row.first_name} ${row.last_name}<br><small>${row.year} (${row.gender})</small></th>`;
-        });
-        headerHtml += '</tr>';
-        tableHeader.innerHTML = headerHtml;
-
-        // 2. Build Transposed Table Rows
-        metrics.forEach(metric => {
-            if (metric.category) {
-                const categoryRow = document.createElement('tr');
-                categoryRow.className = 'category-row';
-                categoryRow.innerHTML = `<th colspan="${data.length + 1}">${metric.category}</th>`;
-                tableBody.appendChild(categoryRow);
-            } else {
-                const tr = document.createElement('tr');
-                let rowHtml = `<td><strong>${metric.label}</strong></td>`;
-                data.forEach(row => {
-                    const gender = row.gender || 'Male';
-                    let val = '-';
-                    if (metric.formatter) {
-                        val = metric.formatter(row);
-                    } else if (metric.key) {
-                        const rawVal = row[metric.key];
-                        if (rawVal !== null && rawVal !== undefined && rawVal !== '') {
-                            val = getClinicalBadge(rawVal, metric.key, gender);
-                            if (metric.unit && val !== '-') {
-                                val += metric.unit;
-                            }
-                        }
-                    }
-                    rowHtml += `<td>${val}</td>`;
-                });
-                tr.innerHTML = rowHtml;
-                tableBody.appendChild(tr);
-            }
-        });
-
-        // 3. Build Mobile Cards (remains clean and vertical as before)
-        data.forEach(row => {
-            const gender = row.gender || 'Male';
-            const bmi = calculateBMI(row.weight, row.height);
-            const bmiBadge = formatBMI(bmi);
-            
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>${row.first_name} ${row.last_name}</span>
-                        <span class="card-subtitle">Year: ${row.year} | ${row.gender}</span>
-                    </div>
-                    <button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>
-                </div>
-                <div class="card-grid">
-                    <div class="card-row"><strong>Weight/Height:</strong> <span>${row.weight || '-'}/${row.height || '-'}</span></div>
-                    <div class="card-row"><strong>Computed BMI:</strong> <span>${bmiBadge}</span></div>
-                    <div class="card-row"><strong>Sugar (FPG):</strong> <span>${getClinicalBadge(row.sugar, 'sugar', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>BUN:</strong> <span>${getClinicalBadge(row.bun, 'bun', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>Creatinine:</strong> <span>${getClinicalBadge(row.creatinine, 'creatinine', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>eGFR:</strong> <span>${getClinicalBadge(row.egrf, 'egrf', gender)}</span></div>
-                    <div class="card-row"><strong>Total Cholesterol:</strong> <span>${getClinicalBadge(row.cholesterol, 'cholesterol', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>Triglycerides:</strong> <span>${getClinicalBadge(row.triglycerides, 'triglycerides', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>HDL-C:</strong> <span>${getClinicalBadge(row.hdl_c, 'hdl_c', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>LDL-C:</strong> <span>${getClinicalBadge(row.ldl_c, 'ldl_c', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>Uric Acid:</strong> <span>${getClinicalBadge(row.uric_acid, 'uric_acid', gender)} mg/dL</span></div>
-                    <div class="card-row"><strong>SGOT (AST):</strong> <span>${getClinicalBadge(row.sgot, 'sgot', gender)} U/L</span></div>
-                    <div class="card-row"><strong>SGPT (ALT):</strong> <span>${getClinicalBadge(row.sgpt, 'sgpt', gender)} U/L</span></div>
-                    <div class="card-row"><strong>Alk Phos (ALP):</strong> <span>${getClinicalBadge(row.alk_phos, 'alk_phos', gender)} U/L</span></div>
-                    <div class="card-row"><strong>HBs Ag:</strong> <span>${getClinicalBadge(row.hbs_ag, 'hbs_ag', gender)}</span></div>
-                    <div class="card-row"><strong>WBC:</strong> <span>${getClinicalBadge(row.wbc, 'wbc', gender)} x10³/µL</span></div>
-                    <div class="card-row"><strong>RBC:</strong> <span>${getClinicalBadge(row.rbc_m, 'rbc_m', gender)} x10⁶/µL</span></div>
-                    <div class="card-row"><strong>Hemoglobin:</strong> <span>${getClinicalBadge(row.hgb_m, 'hgb_m', gender)} g/dL</span></div>
-                    <div class="card-row"><strong>Hematocrit:</strong> <span>${getClinicalBadge(row.hct_m, 'hct_m', gender)}%</span></div>
-                    <div class="card-row"><strong>Platelets:</strong> <span>${getClinicalBadge(row.platelets, 'platelets', gender)} x10³/µL</span></div>
-                    <div class="card-row"><strong>Diff (N/L/M/E/B):</strong> 
-                        <span>
-                            ${getClinicalBadge(row.neu, 'neu', gender)}/
-                            ${getClinicalBadge(row.lymp, 'lymp', gender)}/
-                            ${getClinicalBadge(row.mono, 'mono', gender)}/
-                            ${getClinicalBadge(row.eos, 'eos', gender)}/
-                            ${getClinicalBadge(row.baso, 'baso', gender)}
-                        </span>
-                    </div>
-                    <div class="card-row"><strong>Urine SpGr/pH:</strong> 
-                        <span>
-                            ${getClinicalBadge(row.specific_gravity, 'specific_gravity', gender)}/
-                            ${getClinicalBadge(row.ph, 'ph', gender)}
-                        </span>
-                    </div>
-                    <div class="card-row"><strong>Urine Exam:</strong> <span>${getClinicalBadge(row.urine_exam, 'urine_exam', gender)}</span></div>
-                    <div class="card-row"><strong>Chest X-Ray:</strong> <span>${getClinicalBadge(row.chest_x_ray, 'chest_x_ray', gender)}</span></div>
-                </div>
-            `;
-            mobileCards.appendChild(card);
-        });
+        allCheckups = data;
+        filterAndRender();
     } catch (err) {
         console.error('Error fetching data:', err);
     }
+}
+
+function filterAndRender() {
+    const nameFilter = document.getElementById('nameFilter');
+    const query = nameFilter ? nameFilter.value.trim().toLowerCase() : '';
+    
+    const filtered = allCheckups.filter(row => {
+        const firstName = (row.first_name || '').toLowerCase();
+        const lastName = (row.last_name || '').toLowerCase();
+        return firstName.includes(query) || lastName.includes(query);
+    });
+    
+    renderRecords(filtered);
+}
+
+function renderRecords(data) {
+    // Reset containers
+    tableHeader.innerHTML = '';
+    tableBody.innerHTML = '';
+    mobileCards.innerHTML = '';
+
+    if (data.length === 0) {
+        tableHeader.innerHTML = '<tr><th>No matching records found</th></tr>';
+        tableBody.innerHTML = '<tr><td>No checkups match your filter criteria.</td></tr>';
+        return;
+    }
+
+    // 1. Build Transposed Table Header
+    let headerHtml = '<tr><th>Metric / Parameter</th>';
+    data.forEach(row => {
+        headerHtml += `<th>${row.first_name} ${row.last_name}<br><small>${row.year} (${row.gender})</small></th>`;
+    });
+    headerHtml += '</tr>';
+    tableHeader.innerHTML = headerHtml;
+
+    // 2. Build Transposed Table Rows
+    metrics.forEach(metric => {
+        if (metric.category) {
+            const categoryRow = document.createElement('tr');
+            categoryRow.className = 'category-row';
+            categoryRow.innerHTML = `<th colspan="${data.length + 1}">${metric.category}</th>`;
+            tableBody.appendChild(categoryRow);
+        } else {
+            const tr = document.createElement('tr');
+            let rowHtml = `<td><strong>${metric.label}</strong></td>`;
+            data.forEach(row => {
+                const gender = row.gender || 'Male';
+                let val = '-';
+                if (metric.formatter) {
+                    val = metric.formatter(row);
+                } else if (metric.key) {
+                    const rawVal = row[metric.key];
+                    if (rawVal !== null && rawVal !== undefined && rawVal !== '') {
+                        val = getClinicalBadge(rawVal, metric.key, gender);
+                        if (metric.unit && val !== '-') {
+                            val += metric.unit;
+                        }
+                    }
+                }
+                rowHtml += `<td>${val}</td>`;
+            });
+            tr.innerHTML = rowHtml;
+            tableBody.appendChild(tr);
+        }
+    });
+
+    // 3. Build Mobile Cards (remains clean and vertical as before)
+    data.forEach(row => {
+        const gender = row.gender || 'Male';
+        const bmi = calculateBMI(row.weight, row.height);
+        const bmiBadge = formatBMI(bmi);
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div class="card-header">
+                <div class="card-title">
+                    <span>${row.first_name} ${row.last_name}</span>
+                    <span class="card-subtitle">Year: ${row.year} | ${row.gender}</span>
+                </div>
+                <button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>
+            </div>
+            <div class="card-grid">
+                <div class="card-row"><strong>Weight/Height:</strong> <span>${row.weight || '-'}/${row.height || '-'}</span></div>
+                <div class="card-row"><strong>Computed BMI:</strong> <span>${bmiBadge}</span></div>
+                <div class="card-row"><strong>Sugar (FPG):</strong> <span>${getClinicalBadge(row.sugar, 'sugar', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>BUN:</strong> <span>${getClinicalBadge(row.bun, 'bun', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>Creatinine:</strong> <span>${getClinicalBadge(row.creatinine, 'creatinine', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>eGFR:</strong> <span>${getClinicalBadge(row.egrf, 'egrf', gender)}</span></div>
+                <div class="card-row"><strong>Total Cholesterol:</strong> <span>${getClinicalBadge(row.cholesterol, 'cholesterol', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>Triglycerides:</strong> <span>${getClinicalBadge(row.triglycerides, 'triglycerides', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>HDL-C:</strong> <span>${getClinicalBadge(row.hdl_c, 'hdl_c', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>LDL-C:</strong> <span>${getClinicalBadge(row.ldl_c, 'ldl_c', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>Uric Acid:</strong> <span>${getClinicalBadge(row.uric_acid, 'uric_acid', gender)} mg/dL</span></div>
+                <div class="card-row"><strong>SGOT (AST):</strong> <span>${getClinicalBadge(row.sgot, 'sgot', gender)} U/L</span></div>
+                <div class="card-row"><strong>SGPT (ALT):</strong> <span>${getClinicalBadge(row.sgpt, 'sgpt', gender)} U/L</span></div>
+                <div class="card-row"><strong>Alk Phos (ALP):</strong> <span>${getClinicalBadge(row.alk_phos, 'alk_phos', gender)} U/L</span></div>
+                <div class="card-row"><strong>HBs Ag:</strong> <span>${getClinicalBadge(row.hbs_ag, 'hbs_ag', gender)}</span></div>
+                <div class="card-row"><strong>WBC:</strong> <span>${getClinicalBadge(row.wbc, 'wbc', gender)} x10³/µL</span></div>
+                <div class="card-row"><strong>RBC:</strong> <span>${getClinicalBadge(row.rbc_m, 'rbc_m', gender)} x10⁶/µL</span></div>
+                <div class="card-row"><strong>Hemoglobin:</strong> <span>${getClinicalBadge(row.hgb_m, 'hgb_m', gender)} g/dL</span></div>
+                <div class="card-row"><strong>Hematocrit:</strong> <span>${getClinicalBadge(row.hct_m, 'hct_m', gender)}%</span></div>
+                <div class="card-row"><strong>Platelets:</strong> <span>${getClinicalBadge(row.platelets, 'platelets', gender)} x10³/µL</span></div>
+                <div class="card-row"><strong>Diff (N/L/M/E/B):</strong> 
+                    <span>
+                        ${getClinicalBadge(row.neu, 'neu', gender)}/
+                        ${getClinicalBadge(row.lymp, 'lymp', gender)}/
+                        ${getClinicalBadge(row.mono, 'mono', gender)}/
+                        ${getClinicalBadge(row.eos, 'eos', gender)}/
+                        ${getClinicalBadge(row.baso, 'baso', gender)}
+                    </span>
+                </div>
+                <div class="card-row"><strong>Urine SpGr/pH:</strong> 
+                    <span>
+                        ${getClinicalBadge(row.specific_gravity, 'specific_gravity', gender)}/
+                        ${getClinicalBadge(row.ph, 'ph', gender)}
+                    </span>
+                </div>
+                <div class="card-row"><strong>Urine Exam:</strong> <span>${getClinicalBadge(row.urine_exam, 'urine_exam', gender)}</span></div>
+                <div class="card-row"><strong>Chest X-Ray:</strong> <span>${getClinicalBadge(row.chest_x_ray, 'chest_x_ray', gender)}</span></div>
+            </div>
+        `;
+        mobileCards.appendChild(card);
+    });
 }
 
 // Event Listeners for BMI dynamic changes in form
@@ -392,6 +411,11 @@ themeToggle.addEventListener('click', () => {
     const currentTheme = html.getAttribute('data-theme');
     setTheme(currentTheme === 'dark' ? 'light' : 'dark');
 });
+
+const nameFilter = document.getElementById('nameFilter');
+if (nameFilter) {
+    nameFilter.addEventListener('input', filterAndRender);
+}
 
 // Initial Fetch
 fetchCheckups();
