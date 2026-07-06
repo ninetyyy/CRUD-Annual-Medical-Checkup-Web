@@ -108,6 +108,8 @@ Permanently deletes **all rows** from `public.medical_checkup` and resets the ID
 ```bash
 npm run clear-db          # shows row count → asks "yes" confirmation → truncates
 npm run clear-db:force    # skips confirmation (useful for scripting/automation)
+node clear-db.js          # Same as npm run clear-db
+node clear-db.js --force  # Same as npm run clear-db:force
 ```
 
 > ⚠️ **This is irreversible.** Re-populate with `npm run mock-data` or `npm run import-csv` afterward.
@@ -118,7 +120,8 @@ npm run clear-db:force    # skips confirmation (useful for scripting/automation)
 Clears the database and inserts 4 synthetic patients covering every clinical state (Low, Normal, Warning, High):
 
 ```bash
-npm run mock-data
+npm run insert-mock-data
+node insert-mock-data.js
 ```
 
 ---
