@@ -18,10 +18,27 @@ const pool = new Pool({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (frontend)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Basic Authentication Middleware
+const basicAuth = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Secure Medical Storage"');
+    return res.status(401).send('Authentication required.');
+  }
+  const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  const user = auth[0];
+  const pass = auth[1];
+  if (user === (process.env.ADMIN_USER || 'admin') && pass === (process.env.ADMIN_PASS || 'admin1234')) {
+    return next();
+  }
+  res.setHeader('WWW-Authenticate', 'Basic realm="Secure Medical Storage"');
+  return res.status(401).send('Authentication failed.');
+};
+
+app.use(basicAuth);
+
+// Serve static files (frontend) from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // GET: Fetch all medical checkups
 app.get('/api/checkups', async (req, res) => {
