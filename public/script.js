@@ -1,58 +1,58 @@
 const ranges = {
-  sugar: { min: 70, max: 99 },
-  bun: { min: 7, max: 20 },
-  creatinine: {
-    Male: { min: 0.73, max: 1.18 },
-    Female: { min: 0.5, max: 1.1 },
-    Other: { min: 0.5, max: 1.18 }
-  },
-  egrf: { min: 90, max: 9999 }, // eGFR >= 90 is normal
-  cholesterol: { min: 0, max: 199.99 }, // < 200 is normal
-  triglycerides: { min: 0, max: 149.99 }, // < 150 is normal
-  hdl_c: {
-    Male: { min: 40, max: 9999 },
-    Female: { min: 50, max: 9999 },
-    Other: { min: 40, max: 9999 }
-  },
-  ldl_c: { min: 0, max: 129.99 }, // < 130 is normal
-  uric_acid: {
-    Male: { min: 3.5, max: 7.2 },
-    Female: { min: 2.4, max: 6.0 },
-    Other: { min: 2.4, max: 7.2 }
-  },
-  total_protein: { min: 6.0, max: 8.3 },
-  albumin: { min: 3.5, max: 5.0 },
-  alk_phos: { min: 30, max: 120 },
-  sgot: { min: 10, max: 40 },
-  sgpt: {
-    Male: { min: 10, max: 50 },
-    Female: { min: 10, max: 35 },
-    Other: { min: 10, max: 50 }
-  },
-  wbc: { min: 4.0, max: 10.0 },
-  rbc_m: {
-    Male: { min: 4.5, max: 5.9 },
-    Female: { min: 4.0, max: 5.2 },
-    Other: { min: 4.0, max: 5.9 }
-  },
-  hgb_m: {
-    Male: { min: 13.5, max: 17.5 },
-    Female: { min: 12.0, max: 15.5 },
-    Other: { min: 12.0, max: 17.5 }
-  },
-  hct_m: {
-    Male: { min: 39, max: 49 },
-    Female: { min: 35, max: 45 },
-    Other: { min: 35, max: 49 }
-  },
-  platelets: { min: 150, max: 450 },
-  neu: { min: 40, max: 70 },
-  lymp: { min: 20, max: 45 },
-  mono: { min: 2, max: 10 },
-  eos: { min: 1, max: 6 },
-  baso: { min: 0, max: 2 },
-  specific_gravity: { min: 1.003, max: 1.030 },
-  ph: { min: 4.6, max: 8.0 }
+    sugar: { min: 70, max: 99 },
+    bun: { min: 7, max: 20 },
+    creatinine: {
+        Male: { min: 0.73, max: 1.18 },
+        Female: { min: 0.5, max: 1.1 },
+        Other: { min: 0.5, max: 1.18 }
+    },
+    egrf: { min: 90, max: 120 }, // eGFR >= 90 is normal
+    cholesterol: { min: 0, max: 199.99 }, // < 200 is normal
+    triglycerides: { min: 0, max: 149.99 }, // < 150 is normal
+    hdl_c: {
+        Male: { min: 40, max: 9999 },
+        Female: { min: 50, max: 9999 },
+        Other: { min: 40, max: 9999 }
+    },
+    ldl_c: { min: 0, max: 129.99 }, // < 130 is normal
+    uric_acid: {
+        Male: { min: 3.5, max: 7.2 },
+        Female: { min: 2.4, max: 6.0 },
+        Other: { min: 2.4, max: 7.2 }
+    },
+    total_protein: { min: 6.0, max: 8.3 },
+    albumin: { min: 3.5, max: 5.0 },
+    alk_phos: { min: 40, max: 150 },
+    sgot: { min: 5, max: 34 },
+    sgpt: {
+        Male: { min: 0, max: 45 },
+        Female: { min: 10, max: 35 },
+        Other: { min: 10, max: 50 }
+    },
+    wbc: { min: 4.0, max: 10.0 },
+    rbc_m: {
+        Male: { min: 4.5, max: 5.9 },
+        Female: { min: 4.0, max: 5.2 },
+        Other: { min: 4.0, max: 5.9 }
+    },
+    hgb_m: {
+        Male: { min: 13, max: 18 },
+        Female: { min: 12.0, max: 15.5 },
+        Other: { min: 12.0, max: 17.5 }
+    },
+    hct_m: {
+        Male: { min: 40, max: 54 },
+        Female: { min: 35, max: 45 },
+        Other: { min: 35, max: 49 }
+    },
+    platelets: { min: 150, max: 450 },
+    neu: { min: 46.5, max: 75.0 },
+    lymp: { min: 12, max: 44 },
+    mono: { min: 0.0, max: 11.2 },
+    eos: { min: 1, max: 6 },
+    baso: { min: 0, max: 2 },
+    specific_gravity: { min: 1.003, max: 1.030 },
+    ph: { min: 4.5, max: 8.0 }
 };
 
 function calculateBMI(weight, height) {
@@ -76,38 +76,38 @@ function formatBMI(bmi) {
 }
 
 function getClinicalBadge(value, rangeKey, gender) {
-  if (value === null || value === undefined || value === '') return '-';
-  
-  if (rangeKey === 'hbs_ag' || rangeKey === 'urine_exam' || rangeKey === 'chest_x_ray') {
-    const strVal = String(value).trim().toLowerCase();
-    const isNormal = strVal === 'normal' || strVal === 'negative' || strVal === 'neg' || strVal === 'normal chest';
-    if (isNormal) {
-      return `<span class="badge badge-normal">${value}</span>`;
-    } else {
-      return `<span class="badge badge-high" title="Abnormal/Positive">${value}</span>`;
+    if (value === null || value === undefined || value === '') return '-';
+
+    if (rangeKey === 'hbs_ag' || rangeKey === 'urine_exam' || rangeKey === 'chest_x_ray') {
+        const strVal = String(value).trim().toLowerCase();
+        const isNormal = strVal === 'normal' || strVal === 'negative' || strVal === 'neg' || strVal === 'normal chest';
+        if (isNormal) {
+            return `<span class="badge badge-normal">${value}</span>`;
+        } else {
+            return `<span class="badge badge-high" title="Abnormal/Positive">${value}</span>`;
+        }
     }
-  }
 
-  const num = parseFloat(value);
-  if (isNaN(num)) return value;
+    const num = parseFloat(value);
+    if (isNaN(num)) return value;
 
-  let rule = ranges[rangeKey];
-  if (!rule) return num;
+    let rule = ranges[rangeKey];
+    if (!rule) return num;
 
-  if (rule.Male || rule.Female) {
-    rule = rule[gender] || rule.Other || rule.Male;
-  }
+    if (rule.Male || rule.Female) {
+        rule = rule[gender] || rule.Other || rule.Male;
+    }
 
-  const { min, max } = rule;
-  const label = `${min} - ${max}`;
+    const { min, max } = rule;
+    const label = `${min} - ${max}`;
 
-  if (num < min) {
-    return `<span class="badge badge-low" title="Low (Normal: ${label})">${num}</span>`;
-  } else if (num > max) {
-    return `<span class="badge badge-high" title="High (Normal: ${label})">${num}</span>`;
-  } else {
-    return `<span class="badge badge-normal" title="Normal: ${label}">${num}</span>`;
-  }
+    if (num < min) {
+        return `<span class="badge badge-low" title="Low (Normal: ${label})">${num}</span>`;
+    } else if (num > max) {
+        return `<span class="badge badge-high" title="High (Normal: ${label})">${num}</span>`;
+    } else {
+        return `<span class="badge badge-normal" title="Normal: ${label}">${num}</span>`;
+    }
 }
 
 const form = document.getElementById('checkupForm');
@@ -117,53 +117,53 @@ const mobileCards = document.getElementById('mobileCards');
 
 // Medical metrics configuration for vertical table layout
 const metrics = [
-  { label: 'Year', key: 'year' },
-  { label: 'Gender', key: 'gender' },
-  { label: 'Weight', key: 'weight', unit: ' kg' },
-  { label: 'Height', key: 'height', unit: ' cm' },
-  { label: 'Computed BMI', formatter: row => formatBMI(calculateBMI(row.weight, row.height)) },
-  
-  { category: 'Blood Chemistry & Kidney Function' },
-  { label: 'Sugar (FPG)', key: 'sugar', unit: ' mg/dL' },
-  { label: 'BUN', key: 'bun', unit: ' mg/dL' },
-  { label: 'Creatinine', key: 'creatinine', unit: ' mg/dL' },
-  { label: 'eGFR', key: 'egrf' },
-  { label: 'Uric Acid', key: 'uric_acid', unit: ' mg/dL' },
+    { label: 'Year', key: 'year' },
+    { label: 'Gender', key: 'gender' },
+    { label: 'Weight', key: 'weight', unit: ' kg' },
+    { label: 'Height', key: 'height', unit: ' cm' },
+    { label: 'Computed BMI', formatter: row => formatBMI(calculateBMI(row.weight, row.height)) },
 
-  { category: 'Lipid Profile' },
-  { label: 'Cholesterol', key: 'cholesterol', unit: ' mg/dL' },
-  { label: 'Triglycerides', key: 'triglycerides', unit: ' mg/dL' },
-  { label: 'HDL-C', key: 'hdl_c', unit: ' mg/dL' },
-  { label: 'LDL-C', key: 'ldl_c', unit: ' mg/dL' },
+    { category: 'Blood Chemistry & Kidney Function' },
+    { label: 'Sugar (FPG)', key: 'sugar', unit: ' mg/dL' },
+    { label: 'BUN', key: 'bun', unit: ' mg/dL' },
+    { label: 'Creatinine', key: 'creatinine', unit: ' mg/dL' },
+    { label: 'eGFR', key: 'egrf' },
+    { label: 'Uric Acid', key: 'uric_acid', unit: ' mg/dL' },
 
-  { category: 'Liver Function & Proteins' },
-  { label: 'Total Protein', key: 'total_protein', unit: ' g/dL' },
-  { label: 'Albumin', key: 'albumin', unit: ' g/dL' },
-  { label: 'Alk Phos (ALP)', key: 'alk_phos', unit: ' U/L' },
-  { label: 'SGOT (AST)', key: 'sgot', unit: ' U/L' },
-  { label: 'SGPT (ALT)', key: 'sgpt', unit: ' U/L' },
-  { label: 'HBs Ag', key: 'hbs_ag' },
+    { category: 'Lipid Profile' },
+    { label: 'Cholesterol', key: 'cholesterol', unit: ' mg/dL' },
+    { label: 'Triglycerides', key: 'triglycerides', unit: ' mg/dL' },
+    { label: 'HDL-C', key: 'hdl_c', unit: ' mg/dL' },
+    { label: 'LDL-C', key: 'ldl_c', unit: ' mg/dL' },
 
-  { category: 'Hematology (CBC)' },
-  { label: 'WBC', key: 'wbc', unit: ' x10³/µL' },
-  { label: 'RBC', key: 'rbc_m', unit: ' x10⁶/µL' },
-  { label: 'Hemoglobin (HGB)', key: 'hgb_m', unit: ' g/dL' },
-  { label: 'Hematocrit (HCT)', key: 'hct_m', unit: '%' },
-  { label: 'Platelets', key: 'platelets', unit: ' x10³/µL' },
-  { label: 'NEU', key: 'neu', unit: '%' },
-  { label: 'LYMP', key: 'lymp', unit: '%' },
-  { label: 'MONO', key: 'mono', unit: '%' },
-  { label: 'EOS', key: 'eos', unit: '%' },
-  { label: 'BASO', key: 'baso', unit: '%' },
+    { category: 'Liver Function & Proteins' },
+    { label: 'Total Protein', key: 'total_protein', unit: ' g/dL' },
+    { label: 'Albumin', key: 'albumin', unit: ' g/dL' },
+    { label: 'Alk Phos (ALP)', key: 'alk_phos', unit: ' U/L' },
+    { label: 'SGOT (AST)', key: 'sgot', unit: ' U/L' },
+    { label: 'SGPT (ALT)', key: 'sgpt', unit: ' U/L' },
+    { label: 'HBs Ag', key: 'hbs_ag' },
 
-  { category: 'Urine & Imaging' },
-  { label: 'Specific Gravity', key: 'specific_gravity' },
-  { label: 'pH', key: 'ph' },
-  { label: 'Urine Exam', key: 'urine_exam' },
-  { label: 'Chest X-Ray', key: 'chest_x_ray' },
+    { category: 'Hematology (CBC)' },
+    { label: 'WBC', key: 'wbc', unit: ' x10³/µL' },
+    { label: 'RBC', key: 'rbc_m', unit: ' x10⁶/µL' },
+    { label: 'Hemoglobin (HGB)', key: 'hgb_m', unit: ' g/dL' },
+    { label: 'Hematocrit (HCT)', key: 'hct_m', unit: '%' },
+    { label: 'Platelets', key: 'platelets', unit: ' x10³/µL' },
+    { label: 'NEU', key: 'neu', unit: '%' },
+    { label: 'LYMP', key: 'lymp', unit: '%' },
+    { label: 'MONO', key: 'mono', unit: '%' },
+    { label: 'EOS', key: 'eos', unit: '%' },
+    { label: 'BASO', key: 'baso', unit: '%' },
 
-  { category: 'Actions' },
-  { label: 'Action', formatter: row => `<button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>` }
+    { category: 'Urine & Imaging' },
+    { label: 'Specific Gravity', key: 'specific_gravity' },
+    { label: 'pH', key: 'ph' },
+    { label: 'Urine Exam', key: 'urine_exam' },
+    { label: 'Chest X-Ray', key: 'chest_x_ray' },
+
+    { category: 'Actions' },
+    { label: 'Action', formatter: row => `<button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>` }
 ];
 
 async function deleteCheckup(id) {
@@ -199,13 +199,13 @@ async function fetchCheckups() {
 function filterAndRender() {
     const nameFilter = document.getElementById('nameFilter');
     const query = nameFilter ? nameFilter.value.trim().toLowerCase() : '';
-    
+
     const filtered = allCheckups.filter(row => {
         const firstName = (row.first_name || '').toLowerCase();
         const lastName = (row.last_name || '').toLowerCase();
         return firstName.includes(query) || lastName.includes(query);
     });
-    
+
     renderRecords(filtered);
 }
 
@@ -265,7 +265,7 @@ function renderRecords(data) {
         const gender = row.gender || 'Male';
         const bmi = calculateBMI(row.weight, row.height);
         const bmiBadge = formatBMI(bmi);
-        
+
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
@@ -341,7 +341,7 @@ heightInput.addEventListener('input', updateFormBMI);
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const fields = [
         'year', 'first_name', 'last_name', 'gender', 'weight', 'height',
         'sugar', 'bun', 'creatinine', 'egrf', 'cholesterol', 'triglycerides',
