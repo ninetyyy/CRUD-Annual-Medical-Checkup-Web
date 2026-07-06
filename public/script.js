@@ -1,6 +1,6 @@
 const ranges = {
     sugar: { min: 70, max: 99 },
-    bun: { min: 7, max: 20 },
+    bun: { min: 8.9, max: 20.6 },
     creatinine: {
         Male: { min: 0.73, max: 1.18 },
         Female: { min: 0.5, max: 1.1 },

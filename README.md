@@ -163,20 +163,21 @@ node insert-mock-data.js
 
 | Panel | Metric | Normal Range |
 |-------|--------|-------------|
-| Blood Chemistry | Sugar | 70–100 mg/dL |
-| | BUN | 7–20 mg/dL |
-| | Creatinine | 0.6–1.1 mg/dL |
-| | eGFR | ≥60 mL/min/1.73m² |
+| Blood Chemistry | Sugar | 70–99 mg/dL |
+| | BUN | 8.9–20.6 mg/dL |
+| | Creatinine | 0.73–1.18 mg/dL |
+| | eGFR | ≥90 mL/min/1.73m² |
 | Lipid Profile | Cholesterol | <200 mg/dL |
 | | Triglycerides | <150 mg/dL |
 | | HDL-C | >40 mg/dL |
 | | LDL-C | <130 mg/dL |
-| Liver | ALK Phos | 30–120 U/L |
-| | SGOT (AST) | 5–40 U/L |
-| | SGPT (ALT) | 5–40 U/L |
-| CBC | WBC | 4,500–11,000 /μL |
-| | Hemoglobin | 12–17.5 g/dL |
-| | Platelets | 150,000–400,000 /μL |
+| Liver | ALK Phos | 40–150 U/L |
+| | SGOT (AST) | 5–34 U/L |
+| | SGPT (ALT) | 0–45 U/L |
+| CBC | WBC | 4–10 10^3/μL |
+| | RBC | 4.5–5.9 10^6/μL |
+| | Hemoglobin | 13–18 g/dL |
+| | Platelets | 150,000–450,000 /μL |
 | BMI (WHO Asian) | Normal | 18.5–22.9 |
 | | Overweight | 23.0–24.9 |
 | | Obese | ≥25.0 |
