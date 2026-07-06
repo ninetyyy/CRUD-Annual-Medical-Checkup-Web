@@ -5,7 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "init-db": "node init-db.js"
+    "init-db": "node init-db.js",
+    "mock-data": "node insert-mock-data.js",
+    "clear-db": "node clear-db.js",
+    "clear-db:force": "node clear-db.js --force"
   },
   "dependencies": {
     "express": "^4.18.2",
