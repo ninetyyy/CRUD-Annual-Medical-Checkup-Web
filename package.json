@@ -7,6 +7,7 @@
     "start": "node app.js",
     "init-db": "node init-db.js",
     "mock-data": "node insert-mock-data.js",
+    "import-csv": "node import-csv.js",
     "clear-db": "node clear-db.js",
     "clear-db:force": "node clear-db.js --force"
   },
