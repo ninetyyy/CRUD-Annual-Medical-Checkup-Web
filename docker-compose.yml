@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  # --- ส่วนของ Node.js App (เพิ่มใหม่) ---
+  web:
+    build: .  # บอกให้สร้าง Image จาก Dockerfile ในโฟลเดอร์ปัจจุบัน
+    ports:
+      - "3000:3000"  # เชื่อมต่อพอร์ต 3000 จาก Container ไปยัง Host
+    environment:
+      # เปลี่ยน DB_HOST จาก localhost เป็นชื่อ service ของ database ใน docker-compose
+      - DB_HOST=db 
+      - DB_USER=blood_user
+      - DB_PASSWORD=blood_password
+      - DB_NAME=blood_db
+      - DB_PORT=5432  # พอร์ตภายใน container ของ postgres (ไม่ต้อง map 5433 แล้วถ้าไม่จำเป็น)
+      - PORT=3000
+      - ADMIN_USER=admin
+      - ADMIN_PASS=admin1234
+    depends_on:
+      - db  # รอให้ database พร้อมก่อนค่อยรัน web
+
+  # --- ส่วนของ PostgreSQL (จากเดิมของคุณ) ---
   db:
     image: postgres:15
     restart: always
@@ -8,7 +27,7 @@ services:
       POSTGRES_PASSWORD: blood_password
       POSTGRES_DB: blood_db
     ports:
-      - "5433:5432"
+      - "5432:5432" # Map พอร์ต 5432 ของ Host ไปยัง 5432 ของ Container
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql

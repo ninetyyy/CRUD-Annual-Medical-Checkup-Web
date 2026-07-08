@@ -1,81 +1,92 @@
 # 🩸 Medical Checkup & Blood Result Storage System
 
 A modern Node.js (Express) and PostgreSQL web application for recording, viewing, and comparing medical checkup and blood test results over time.
+Designed with specialized healthy reference ranges for Asian/Thai clinical populations, dynamic BMI calculations, and a secure basic authentication layer.
 
-Designed with specialized healthy reference ranges for **Asian/Thai clinical populations**, dynamic BMI calculations, and a secure basic authentication layer.
+✨ Now Fully Containerized!
+Run the entire application (Web Server + Database) with a single command using Docker Compose.
 
 ---
 
 ## 🛠️ Features
 
-- **🔒 Secure Basic Authentication** — Access is protected with configurable credentials via `.env`.
-- **📂 Structured Codebase** — Frontend split into dedicated `index.html`, `style.css`, and `script.js` served statically from the `public/` directory.
+- **🔒 Secure Basic Authentication**— Access is protected with configurable credentials via `.env.`
+- **📂 Structured Codebase** — Frontend split into dedicated `index.html`, `style.css`, and `script.js` served statically from the public/ directory.
 - **📊 Dynamic Transposed Medical Chart**
-  - Compare test results chronologically side-by-side.
-  - Clinical parameters are aligned **vertically (rows)**; checkup events are **columns**.
-  - First column (parameter labels) is **sticky** on horizontal scroll.
-  - Divided into logical clinical panels: Blood Chemistry, Lipid Profile, Liver, CBC, Urine/Imaging.
+Compare test results chronologically side-by-side.
+Clinical parameters are aligned vertically (rows); checkup events are columns.
+First column (parameter labels) is sticky on horizontal scroll.
+Divided into logical clinical panels: Blood Chemistry, Lipid Profile, Liver, CBC, Urine/Imaging.
 - **🔍 Real-time Name Filter** — Instantly filter the Historical Records table by patient first name (case-insensitive, no page reload).
 - **🟢 Healthy Reference Ranges (Thai/Asian Standards)** — Colors anomalies with badges:
-  - 🟢 **Green**: Within normal limits
-  - 🔵 **Blue**: Below healthy range (Low)
-  - 🔴 **Red**: Above healthy range (High) / Abnormal positive (HBs Ag, Urine Exam, X-Ray)
-  - 🟡 **Yellow**: Borderline / Warning zone
-- **⚖️ Automatic BMI Calculation (WHO Asian Criteria)** — Live BMI updates in the form and history; classifies into *Underweight (<18.5)*, *Normal (18.5–22.9)*, *Overweight (23.0–24.9)*, and *Obese (≥25.0)*.
+- **🟢 Green**: Within normal limits
+- **🔵 Blue**: Below healthy range (Low)
+- **🔴 Red**: Above healthy range (High) / Abnormal positive (HBs Ag, Urine Exam, X-Ray)
+- **🟡 Yellow**: Borderline / Warning zone
+- **⚖️ Automatic BMI Calculation (WHO Asian Criteria)** — Live BMI updates in the form and history; classifies into Underweight (<18.5), Normal (18.5–22.9), Overweight (23.0–24.9), and Obese (≥25.0).
 - **📱 Fully Mobile Responsive** — Transitions from desktop comparison table to stacked clinical cards on screens <992px.
 - **📦 Database Auto-Initialization** — PostgreSQL table schema initializes automatically on first Docker startup via `init.sql`.
 
 ---
 
 ## 🚀 Setup & Run
+This is the recommended way to run the application. It ensures a consistent environment across all machines.
 
 ### 1. Requirements
-- Node.js (v16+)
-- Docker & Docker Desktop
+- Docker & Docker Desktop installed on your machine.
+- (Node.js is no longer required on the host machine as it runs inside the container)
 
 ### 2. Configure Environment (`.env`)
-Create or verify your `.env` file in the project root:
+Create or verify your .env file in the project root. Note that DB_HOST must be set to db to communicate with the PostgreSQL container.
 ```env
 DB_USER=blood_user
-DB_HOST=localhost
+DB_HOST=db              # <--- Crucial: Use 'db' service name, not localhost
 DB_NAME=blood_db
 DB_PASSWORD=blood_password
-DB_PORT=5433
+DB_PORT=5432            # <--- Internal container port
 PORT=3000
 ADMIN_USER=admin
 ADMIN_PASS=admin1234
 ```
 
-### 3. Start PostgreSQL via Docker
+### 3. Build and Start All Services
+Run the following command in your terminal. This will:
+
+Build the Node.js application image using the Dockerfile.
+Start the PostgreSQL database container.
+Start the Web Server container connected to the database.
+
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
+(The --build flag ensures any changes to your code or Dockerfile are included. The -d flag runs it in detached mode.)
 *(Boots the DB container and auto-executes `init.sql` to create the table schema.)*
 
-### 4. Install Dependencies
-```bash
-npm install
-```
+### 4. Open the Application
+Navigate to http://localhost:3000 and sign in with:
 
-### 5. Start the Web Server
-```bash
-npm start
-```
-*(On Windows, if you hit execution policy errors run: `node app.js`)*
+Username: admin (or your configured ADMIN_USER)
+Password: admin1234 (or your configured ADMIN_PASS)
 
-### 6. Open the Application
-Navigate to **[http://localhost:3000](http://localhost:3000)** and sign in with:
-- **Username**: `admin` (or your configured `ADMIN_USER`)
-- **Password**: `admin1234` (or your configured `ADMIN_PASS`)
+### 5. Stopping the Application
+To stop and remove the containers (data is preserved in volumes):
+```bash
+docker-compose down
+```
 
 ---
 
-## 🗄️ Database Utilities
+## 🗄️ Database Utilities(Inside Container)
+If you need to run database utilities, you can execute commands inside the running web container.
 
-All utilities read credentials from `.env` automatically.
+Access the Container
+```bash
+docker exec -it <container_name> sh
+# Example: docker exec -it blood_result_storage_web_1 sh
+```
 
 ### Import from CSV (`import-csv.js`)
-Import records from a `.csv` file directly into the database.
+Once inside the container (or by running docker exec):
 
 ```bash
 npm run import-csv                       # imports medical_records.csv in project root
@@ -147,13 +158,15 @@ node insert-mock-data.js
 │   ├── style.css             # Grid layouts, dark theme, badges, responsive cards
 │   └── script.js             # Clinical range dictionary, BMI logic, DOM renderer
 ├── app.js                    # Express backend with Basic Auth middleware
-├── docker-compose.yml        # PostgreSQL container configuration
+├── docker-compose.yml        # Docker Compose configuration (Web + DB)
+├── Dockerfile                # Instructions to build the Node.js application image
 ├── init.sql                  # Database table schema (auto-run by Docker)
-├── import-csv.js             # CSV → database import utility (upsert-safe)
-├── clear-db.js               # Utility to truncate all records with confirmation
-├── insert-mock-data.js       # Synthetic test records for all clinical states
-├── medical_records.csv       # Real checkup records (personal data)
-├── init-db.js                # Manual DB schema initializer (alternative to Docker)
+├── import-csv.js             # CSV → database import utility
+├── clear-db.js               # Utility to truncate all records
+├── insert-mock-data.js       # Synthetic test records generator
+├── medical_records.csv       # Sample checkup records
+├── init-db.js                # Manual DB schema initializer
+├── .env                      # Environment variables (DB credentials, etc.)
 └── package.json              # Node project config and npm scripts
 ```
 
