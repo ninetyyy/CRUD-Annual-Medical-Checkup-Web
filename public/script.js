@@ -198,12 +198,16 @@ async function fetchCheckups() {
 
 function filterAndRender() {
     const nameFilter = document.getElementById('nameFilter');
-    const query = nameFilter ? nameFilter.value.trim().toLowerCase() : '';
+    const yearFilter = document.getElementById('yearFilter');
+    const nameQuery = nameFilter ? nameFilter.value.trim().toLowerCase() : '';
+    const yearQuery = yearFilter ? yearFilter.value.trim() : '';
 
     const filtered = allCheckups.filter(row => {
         const firstName = (row.first_name || '').toLowerCase();
         const lastName = (row.last_name || '').toLowerCase();
-        return firstName.includes(query) || lastName.includes(query);
+        const nameMatch = firstName.includes(nameQuery) || lastName.includes(nameQuery);
+        const yearMatch = !yearQuery || String(row.year) === yearQuery;
+        return nameMatch && yearMatch;
     });
 
     renderRecords(filtered);
@@ -415,6 +419,11 @@ themeToggle.addEventListener('click', () => {
 const nameFilter = document.getElementById('nameFilter');
 if (nameFilter) {
     nameFilter.addEventListener('input', filterAndRender);
+}
+
+const yearFilter = document.getElementById('yearFilter');
+if (yearFilter) {
+    yearFilter.addEventListener('input', filterAndRender);
 }
 
 // Initial Fetch
