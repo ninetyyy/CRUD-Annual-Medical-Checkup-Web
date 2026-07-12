@@ -1,6 +1,6 @@
 # 🔄 Medical Checkup Web Application — Workflow Diagrams
 
-This document contains detailed Mermaid diagrams illustrating how the web application works, including all API scenarios (GET, POST, DELETE).
+This document contains detailed Mermaid diagrams illustrating how the web application works, including all API scenarios (GET, POST, PUT, DELETE).
 
 ---
 
@@ -10,9 +10,10 @@ This document contains detailed Mermaid diagrams illustrating how the web applic
 2. [Authentication Flow](#2-authentication-flow)
 3. [GET Scenario — Fetch Medical Records](#3-get-scenario--fetch-medical-records)
 4. [POST Scenario — Save New Medical Record](#4-post-scenario--save-new-medical-record)
-5. [DELETE Scenario — Remove a Record](#5-delete-scenario--remove-a-record)
-6. [Client-Side Filter Flow](#6-client-side-filter-flow)
-7. [Complete Request/Response Cycle](#7-complete-requestresponse-cycle)
+5. [PUT Scenario — Edit/Update Medical Record](#5-put-scenario--editupdate-medical-record)
+6. [DELETE Scenario — Remove a Record](#6-delete-scenario--remove-a-record)
+7. [Client-Side Filter Flow](#7-client-side-filter-flow)
+8. [Complete Request/Response Cycle](#8-complete-requestresponse-cycle)
 
 ---
 
@@ -247,7 +248,72 @@ graph TB
 
 ---
 
-## 5. DELETE Scenario — Remove a Record
+## 5. PUT Scenario — Edit/Update Medical Record
+
+```mermaid
+sequenceDiagram
+    participant User as 🧑 User
+    participant Client as 📄 script.js
+    participant Server as 🖥️ app.js
+    participant DB as 🗄️ PostgreSQL
+
+    User->>Client: Click "Edit" button on a record
+    Client->>Client: editCheckup(id) called
+
+    Client->>Client: Find record in allCheckups array<br/>(String comparison for id)
+
+    alt Record Found
+        Client->>Client: openEditModal(record)<br/>Pre-fill form fields
+        Client->>User: 📝 Edit Modal appears<br/>(centered on screen)
+        User->>Client: Modify fields & click Save
+        Client->>Client: Collect updated form data
+        Client->>Server: PUT /api/checkups/:id<br/>(e.g., /api/checkups/262022035)
+
+        Server->>Server: 🔒 basicAuth middleware<br/>Check credentials
+
+        Server->>DB: UPDATE public.medical_checkup<br/>SET field1=$1, field2=$2...<br/>WHERE id = $3<br/>RETURNING *
+
+        DB-->>Server: Return updated record
+        Server-->>Client: 200 OK<br/>{updated record data}
+        Client->>Client: closeEditModal()
+        Client->>Client: fetchCheckups()<br/>(Reload data)
+        Client->>Client: Re-render table
+        Client->>User: ✅ Record updated!
+    else Record Not Found
+        Client->>User: ⚠️ No record found
+    end
+```
+
+### PUT — Modal Dialog Flow
+
+```mermaid
+graph TB
+    A["🖱️ User clicks Edit button"] --> B["editCheckup(id) called"]
+    B --> C["Find record in<br/>allCheckups array<br/>String(r.id) === String(id)"]
+    C --> D{"Record<br/>found?"}
+    D -- No --> E["⛔ Do nothing"]
+    D -- Yes --> F["openEditModal(record)"]
+    F --> G["Set editingRecordId"]
+    G --> H["Pre-fill all 35 form fields"]
+    H --> I["Display modal<br/>display: flex (centered)"]
+    I --> J["📝 User edits fields"]
+    J --> K["Form submit event"]
+    K --> L["Collect form data"]
+    L --> M["PUT /api/checkups/:id"]
+    M --> N{"Server OK?"}
+    N -- Yes --> O["closeEditModal()"]
+    O --> P["fetchCheckups()"]
+    P --> Q["✅ Table refreshes"]
+    N -- No --> R["⛔ Show error alert"]
+
+    style A fill:#e3f2fd
+    style Q fill:#c8e6c9
+    style R fill:#ffcdd2
+```
+
+---
+
+## 6. DELETE Scenario — Remove a Record
 
 ```mermaid
 sequenceDiagram
@@ -291,7 +357,7 @@ sequenceDiagram
 
 ---
 
-## 6. Client-Side Filter Flow
+## 7. Client-Side Filter Flow
 
 ```mermaid
 graph TB
@@ -330,7 +396,7 @@ graph TB
 
 ---
 
-## 7. Complete Request/Response Cycle
+## 8. Complete Request/Response Cycle
 
 ```mermaid
 stateDiagram-v2
@@ -354,6 +420,12 @@ stateDiagram-v2
     UserAction --> SaveRecord: Submit form (POST)
     SaveRecord --> AuthCheck
 
+    UserAction --> EditRecord: Click Edit button
+    EditRecord --> OpenModal: Show edit dialog
+    OpenModal --> UserEdit: User modifies fields
+    UserEdit --> SaveEdit: PUT /api/checkups/:id
+    SaveEdit --> AuthCheck
+
     UserAction --> DeleteRecord: Click delete (DELETE)
     DeleteRecord --> AuthCheck
 
@@ -367,6 +439,7 @@ stateDiagram-v2
 
     Unauthorized --> [*]: Error shown
     SaveRecord --> DisplayRecords: After save + reload
+    SaveEdit --> DisplayRecords: After edit + reload
     DeleteRecord --> DisplayRecords: After delete + reload
 
     note right of FetchData
@@ -376,6 +449,11 @@ stateDiagram-v2
 
     note right of SaveRecord
         POST /api/checkups
+        Body: {year, first_name, ...}
+    end note
+
+    note right of SaveEdit
+        PUT /api/checkups/:id
         Body: {year, first_name, ...}
     end note
 
@@ -399,6 +477,7 @@ stateDiagram-v2
 |--------|----------|:------------:|--------------|----------|-------------|
 | `GET` | `/api/checkups` | ✅ Yes | None | `[{id, year, first_name, ...}]` | Fetch all records |
 | `POST` | `/api/checkups` | ✅ Yes | `{year, first_name, last_name, ...}` (35 fields) | `{id, year, first_name, ...}` | Create new record |
+| `PUT` | `/api/checkups/:id` | ✅ Yes | `{year, first_name, last_name, ...}` (35 fields) | `{id, year, first_name, ...}` | Update existing record |
 | `DELETE` | `/api/checkups/:id` | ✅ Yes | None | `{message, deleted: {...}}` | Delete record by ID |
 
 ---

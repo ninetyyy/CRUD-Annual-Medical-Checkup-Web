@@ -163,7 +163,7 @@ const metrics = [
     { label: 'Chest X-Ray', key: 'chest_x_ray' },
 
     { category: 'Actions' },
-    { label: 'Action', formatter: row => `<button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>` }
+    { label: 'Action', formatter: row => `<button class="btn-edit" onclick="editCheckup(${row.id})">Edit</button> <button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>` }
 ];
 
 async function deleteCheckup(id) {
@@ -184,6 +184,76 @@ async function deleteCheckup(id) {
 }
 
 let allCheckups = [];
+let editingRecordId = null;
+
+// Edit modal functions
+function openEditModal(record) {
+    editingRecordId = record.id;
+    const fields = [
+        'year', 'first_name', 'last_name', 'gender', 'weight', 'height',
+        'sugar', 'bun', 'creatinine', 'egrf', 'cholesterol', 'triglycerides',
+        'uric_acid', 'total_protein', 'albumin', 'hdl_c', 'ldl_c', 'alk_phos',
+        'sgot', 'sgpt', 'hbs_ag', 'wbc', 'rbc_m', 'hgb_m', 'hct_m', 'platelets',
+        'neu', 'lymp', 'mono', 'eos', 'baso', 'specific_gravity', 'ph',
+        'urine_exam', 'chest_x_ray'
+    ];
+
+    fields.forEach(field => {
+        const editField = document.getElementById(`edit_${field}`);
+        if (editField && record[field] !== null && record[field] !== undefined) {
+            editField.value = record[field];
+        } else if (editField) {
+            editField.value = '';
+        }
+    });
+
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('editForm').reset();
+    editingRecordId = null;
+}
+
+async function editCheckup(id) {
+    const record = allCheckups.find(r => String(r.id) === String(id));
+    if (record) {
+        openEditModal(record);
+    }
+}
+
+async function updateCheckup(id, formData) {
+    try {
+        const response = await fetch(`/api/checkups/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            closeEditModal();
+            fetchCheckups();
+        } else {
+            const errData = await response.json();
+            alert('Error updating record: ' + (errData.error || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error('Error updating record:', err);
+        alert('Connection error');
+    }
+}
+
+// Event listeners for edit modal
+document.getElementById('closeModal').addEventListener('click', closeEditModal);
+document.getElementById('cancelEditBtn').addEventListener('click', closeEditModal);
+
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('editModal');
+    if (e.target === modal) {
+        closeEditModal();
+    }
+});
 
 async function fetchCheckups() {
     try {
@@ -278,6 +348,7 @@ function renderRecords(data) {
                     <span>${row.first_name} ${row.last_name}</span>
                     <span class="card-subtitle">Year: ${row.year} | ${row.gender}</span>
                 </div>
+                <button class="btn-edit" onclick="editCheckup(${row.id})">Edit</button>
                 <button class="btn-delete" onclick="deleteCheckup(${row.id})">Delete</button>
             </div>
             <div class="card-grid">
@@ -323,6 +394,52 @@ function renderRecords(data) {
         mobileCards.appendChild(card);
     });
 }
+
+// Edit form submit handler
+const editForm = document.getElementById('editForm');
+editForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fields = [
+        'year', 'first_name', 'last_name', 'gender', 'weight', 'height',
+        'sugar', 'bun', 'creatinine', 'egrf', 'cholesterol', 'triglycerides',
+        'uric_acid', 'total_protein', 'albumin', 'hdl_c', 'ldl_c', 'alk_phos',
+        'sgot', 'sgpt', 'hbs_ag', 'wbc', 'rbc_m', 'hgb_m', 'hct_m', 'platelets',
+        'neu', 'lymp', 'mono', 'eos', 'baso', 'specific_gravity', 'ph',
+        'urine_exam', 'chest_x_ray'
+    ];
+
+    const formData = {};
+    fields.forEach(field => {
+        const element = document.getElementById(`edit_${field}`);
+        if (element) {
+            let value = element.value;
+            if (element.type === 'number' && value !== '') {
+                value = parseFloat(value);
+            }
+            formData[field] = value === '' ? null : value;
+        }
+    });
+
+    try {
+        const response = await fetch(`/api/checkups/${editingRecordId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            closeEditModal();
+            fetchCheckups();
+        } else {
+            const errData = await response.json();
+            alert('Error updating record: ' + (errData.error || 'Unknown error'));
+        }
+    } catch (err) {
+        console.error('Error updating record:', err);
+        alert('Connection error');
+    }
+});
 
 // Event Listeners for BMI dynamic changes in form
 const weightInput = document.getElementById('weight');

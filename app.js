@@ -108,6 +108,49 @@ app.delete('/api/checkups/:id', async (req, res) => {
   }
 });
 
+// PUT: Update an existing medical checkup
+app.put('/api/checkups/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    year, first_name, last_name, gender, weight, height,
+    sugar, bun, creatinine, egrf, cholesterol, triglycerides,
+    uric_acid, total_protein, albumin, hdl_c, ldl_c, alk_phos,
+    sgot, sgpt, hbs_ag, wbc, rbc_m, hgb_m, hct_m, platelets,
+    neu, lymp, mono, eos, baso, specific_gravity, ph,
+    urine_exam, chest_x_ray
+  } = req.body;
+
+  try {
+    const query = `
+      UPDATE public.medical_checkup SET
+        year = $2, first_name = $3, last_name = $4, gender = $5, weight = $6, height = $7,
+        sugar = $8, bun = $9, creatinine = $10, egrf = $11, cholesterol = $12, triglycerides = $13,
+        uric_acid = $14, total_protein = $15, albumin = $16, hdl_c = $17, ldl_c = $18, alk_phos = $19,
+        sgot = $20, sgpt = $21, hbs_ag = $22, wbc = $23, rbc_m = $24, hgb_m = $25, hct_m = $26, platelets = $27,
+        neu = $28, lymp = $29, mono = $30, eos = $31, baso = $32, specific_gravity = $33, ph = $34,
+        urine_exam = $35, chest_x_ray = $36
+      WHERE id = $1
+      RETURNING *
+    `;
+    const values = [
+      id, year, first_name, last_name, gender, weight, height,
+      sugar, bun, creatinine, egrf, cholesterol, triglycerides,
+      uric_acid, total_protein, albumin, hdl_c, ldl_c, alk_phos,
+      sgot, sgpt, hbs_ag, wbc, rbc_m, hgb_m, hct_m, platelets,
+      neu, lymp, mono, eos, baso, specific_gravity, ph,
+      urine_exam, chest_x_ray
+    ];
+    const result = await pool.query(query, values);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

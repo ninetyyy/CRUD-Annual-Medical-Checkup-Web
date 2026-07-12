@@ -18,6 +18,7 @@ Clinical parameters are aligned vertically (rows); checkup events are columns.
 First column (parameter labels) is sticky on horizontal scroll.
 Divided into logical clinical panels: Blood Chemistry, Lipid Profile, Liver, CBC, Urine/Imaging.
 - **🔍 Real-time Name Filter** — Instantly filter the Historical Records table by patient first name (case-insensitive, no page reload).
+- **✏️ Edit Medical Records** — Click "Edit" on any record to open a centered modal dialog with all fields pre-populated. Modify any value and save to update the database. Changes are reflected immediately in the table.
 - **🟢 Healthy Reference Ranges (Thai/Asian Standards)** — Colors anomalies with badges:
 - **🟢 Green**: Within normal limits
 - **🔵 Blue**: Below healthy range (Low)
